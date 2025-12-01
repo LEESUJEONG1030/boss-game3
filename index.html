@@ -254,14 +254,34 @@
                         h.style.left = pr.style.left; h.style.top = pr.style.top;
                         document.getElementById('off').appendChild(h);
                         setTimeout(() => h.remove(), 700);
-                    } else { showW('ㅈㄹ'); }
+                    } else { 
+                        showW('ㅈㄹ'); 
+                    }
                 };
                 document.getElementById('off').appendChild(pr);
                 
+                // ㅈㄹ 돌아다니기 + 라면 랜덤
                 setInterval(() => {
-                    if (G.st.ㅈㄹ.out && Math.random() < 0.1) {
+                    if (G.st.ㅈㄹ.out) {
                         const p = document.getElementById('p-ㅈㄹ');
-                        if(p) { p.style.left = (Math.random()*70+15)+'%'; p.style.top = (Math.random()*50+25)+'%'; }
+                        if(p) { 
+                            p.style.left = (Math.random()*70+15)+'%'; 
+                            p.style.top = (Math.random()*50+25)+'%'; 
+                            
+                            // 가끔 라면 추가/제거
+                            if (Math.random() < 0.3) {
+                                const hasRam = document.getElementById('ram');
+                                if (!hasRam && Math.random() < 0.5) {
+                                    G.st.ㅈㄹ.ram = 1;
+                                    const r = document.createElement('div');
+                                    r.className = 'ramen'; r.textContent = '🍜'; r.id = 'ram';
+                                    p.appendChild(r);
+                                } else if (hasRam && Math.random() < 0.3) {
+                                    G.st.ㅈㄹ.ram = 0;
+                                    hasRam.remove();
+                                }
+                            }
+                        }
                     }
                 }, 2000);
             }
@@ -277,6 +297,13 @@
                 s.textContent = (tg==='상빈'||tg==='현아') ? '화이팅! 💪' : '잘되가? 😏';
                 document.getElementById('off').appendChild(s);
                 setTimeout(() => s.remove(), 3000);
+            }
+            
+            // 훈발놈 돌아다니기
+            const hb = document.getElementById('p-훈발놈');
+            if (hb && Math.random() < 0.02) {
+                hb.style.left = (Math.random() * 70 + 15) + '%';
+                hb.style.top = (Math.random() * 50 + 40) + '%';
             }
             
             // 박24 등장
@@ -311,14 +338,16 @@
                 setTimeout(() => {
                     const p = document.getElementById('p-'+n);
                     if(p) {
+                        p.style.transition = 'all 1s ease-out';
                         p.style.left = '8%';
                         p.style.top = '50%';
                         setTimeout(() => {
+                            p.style.transition = 'all 0.8s ease-in';
                             p.style.left = G.pos[n].x + '%';
                             p.style.top = G.pos[n].y + '%';
-                        }, 1000);
+                        }, 1500);
                     }
-                }, i*200);
+                }, i*400);
             });
             
             setTimeout(() => {
@@ -332,7 +361,7 @@
                 const x = document.getElementById('p-박24');
                 if(x) x.remove();
                 G.st.박24.out = 0;
-            }, 1500);
+            }, 3000);
         }
 
         function showW(n) {
@@ -368,7 +397,16 @@
                 h.style.left = e.style.left; h.style.top = e.style.top;
                 document.getElementById('off').appendChild(h);
                 setTimeout(() => h.remove(), 700);
-                setTimeout(() => e.classList.remove('knocked'), 600);
+                setTimeout(() => {
+                    e.classList.remove('knocked');
+                    // ㄱㅈ 원위치
+                    if (b === 'ㄱㅈ') {
+                        e.style.left = '30%';
+                        e.style.top = '20%';
+                        G.st.ㄱㅈ.sneak = 0;
+                        document.getElementById('warn').style.display = 'none';
+                    }
+                }, 600);
             }
             closePop();
         }
