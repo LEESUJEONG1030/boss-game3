@@ -247,8 +247,8 @@
                 }, 3000);
             }
             
-            // ㅈㄹ 방에서 나오기
-            if (!G.st.ㅈㄹ.out && Math.random() < 0.01) {
+            // ㅈㄹ 방에서 나오기 (확률 높임)
+            if (!G.st.ㅈㄹ.out && Math.random() < 0.03) {
                 G.st.ㅈㄹ.out = 1;
                 G.st.ㅈㄹ.ram = Math.random() < 0.5 ? 1 : 0;
                 const pr = document.createElement('div');
@@ -346,8 +346,8 @@
                 hb.style.top = (Math.random() * 50 + 40) + '%';
             }
             
-            // 박24 등장
-            if (!G.st.박24.out && Math.random() < 0.003) {
+            // 박24 등장 (확률 높임)
+            if (!G.st.박24.out && Math.random() < 0.01) {
                 G.st.박24.out = 1;
                 const pr = document.createElement('div');
                 pr.className = 'person'; pr.id = 'p-박24';
@@ -356,18 +356,31 @@
                 pr.onclick = () => gangbeat();
                 document.getElementById('off').appendChild(pr);
                 
+                // 똥 투척
                 setTimeout(() => {
-                    G.st.박24.poop = 1;
-                    const p = document.createElement('div');
-                    p.className = 'poop-floor'; p.textContent = '💩💩💩';
-                    p.style.left = '30%'; p.style.top = '60%';
-                    document.getElementById('off').appendChild(p);
+                    if (G.st.박24.out) {
+                        G.st.박24.poop = 1;
+                        const p = document.createElement('div');
+                        p.className = 'poop-floor'; 
+                        p.textContent = '💩💩💩';
+                        p.style.position = 'absolute';
+                        p.style.left = '30%'; 
+                        p.style.top = '60%';
+                        p.style.fontSize = '40px';
+                        p.style.zIndex = '50';
+                        p.style.animation = 'drop 0.5s forwards';
+                        p.id = 'poop-floor';
+                        document.getElementById('off').appendChild(p);
+                    }
                 }, 1000);
                 
                 setTimeout(() => {
                     const x = document.getElementById('p-박24');
                     if(x) x.remove();
-                    G.st.박24.out = 0; G.st.박24.poop = 0;
+                    const pf = document.getElementById('poop-floor');
+                    if(pf) pf.remove();
+                    G.st.박24.out = 0; 
+                    G.st.박24.poop = 0;
                 }, 10000);
             }
         }
