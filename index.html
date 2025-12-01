@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상사 혼내주기 ULTIMATE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Malgun Gothic', sans-serif; background: linear-gradient(to bottom, #1a1a2e, #16213e); color: white; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .office { position: relative; background: linear-gradient(to bottom, #e0f2fe, #cbd5e1); height: 600px; border-radius: 10px; border: 3px solid #334155; overflow: hidden; }
+        
+        .desk { position: absolute; width: 50px; height: 35px; background: #92400e; border: 2px solid #78350f; border-radius: 3px; }
+        .door { position: absolute; width: 50px; height: 70px; background: #78350f; border: 2px solid #000; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        
+        .person { position: absolute; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+        .person:hover { transform: scale(1.05); }
+        .head { width: 20px; height: 20px; background: #fbbf24; border-radius: 50%; border: 1.5px solid #000; position: relative; margin-bottom: 2px; }
+        .head.boss { background: #ef4444; }
+        .head.player { background: #10b981; }
+        .head.bald { background: #ffc6a5; }
+        .hair { position: absolute; top: -3px; left: 50%; transform: translateX(-50%); font-size: 12px; }
+        .eyes { position: absolute; top: 6px; left: 5px; font-size: 6px; }
+        .body { width: 18px; height: 25px; background: #3b82f6; border: 1.5px solid #000; border-radius: 3px; margin-bottom: 2px; position: relative; }
+        .body.boss { background: #991b1b; }
+        .body.player { background: #059669; }
+        .body.fat { width: 28px; height: 30px; }
+        .body.tall { height: 35px; }
+        .arm { position: absolute; width: 20px; height: 4px; background: #fbbf24; border: 1px solid #000; top: 5px; }
+        .arm.left { left: -15px; transform: rotate(-30deg); }
+        .arm.right { right: -15px; transform: rotate(30deg); }
+        .legs { display: flex; gap: 3px; }
+        .leg { width: 6px; height: 18px; background: #1e3a8a; border: 1px solid #000; border-radius: 2px; }
+        .leg.boss { background: #7f1d1d; }
+        .leg.player { background: #065f46; }
+        .leg.tall { height: 25px; }
+        
+        .label { position: absolute; bottom: -18px; font-size: 9px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; font-weight: bold; }
+        .boss-label { background: #dc2626; color: white; }
+        .player-label { background: #10b981; color: white; }
+        
+        .ramen { position: absolute; top: -25px; right: -15px; font-size: 20px; z-index: 10; }
+        .burp { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 18px; animation: float 1s ease-out; }
+        @keyframes float { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-30px); } }
+        
+        .speech { position: absolute; background: white; color: black; padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; border: 2px solid #000; z-index: 120; white-space: nowrap; }
+        .warning { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); background: #dc2626; padding: 10px 20px; border-radius: 8px; border: 2px solid #fbbf24; z-index: 100; display: none; font-size: 12px; }
+        
+        .weapon-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .weapon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .weapon-btn { background: #dc2626; border: 2px solid #fbbf24; padding: 15px; border-radius: 8px; cursor: pointer; color: white; }
+        
+        .hit { position: absolute; font-size: 50px; animation: explode 0.7s forwards; z-index: 150; pointer-events: none; }
+        @keyframes explode { to { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
+        .knocked { animation: fall 0.6s forwards; }
+        @keyframes fall { 0% { transform: rotate(0deg); } 100% { transform: rotate(90deg) translateY(15px); } }
+        
+        .shop { background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; margin-top: 15px; }
+        .shop-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+        .shop-item { background: #374151; border: 2px solid #4b5563; padding: 10px; border-radius: 6px; text-align: center; font-size: 11px; }
+        .buy-btn { width: 100%; margin-top: 6px; padding: 4px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        
+        .stats { background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; margin-top: 15px; }
+        .char-select { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 300; }
+        .char-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .char-option { background: #374151; border: 3px solid #fbbf24; padding: 25px; border-radius: 12px; cursor: pointer; text-align: center; }
+        
+        .poop-floor { position: absolute; font-size: 40px; z-index: 5; animation: drop 0.5s forwards; }
+        @keyframes drop { from { transform: translateY(-100px); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="char-select" id="charSelect">
+        <div>
+            <h2 style="text-align:center; font-size:28px; margin-bottom:30px; color:#fbbf24;">캐릭터 선택</h2>
+            <div class="char-grid">
+                <div class="char-option" onclick="start('상빈')"><div style="font-size:50px;">🧑</div><div style="font-size:20px;">상빈</div></div>
+                <div class="char-option" onclick="start('나')"><div style="font-size:50px;">👩</div><div style="font-size:20px;">나</div></div>
+                <div class="char-option" onclick="start('현아')"><div style="font-size:50px;">👩</div><div style="font-size:20px;">현아</div></div>
+                <div class="char-option" onclick="start('준형')"><div style="font-size:50px;">🧑</div><div style="font-size:20px;">준형</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size:22px;">🏢 상사 혼내주기 ULTIMATE</h1>
+            <div><div>💰 <span id="coins">0</span></div><div>💪 <span id="score">0</span></div><div>👊 <span id="hits">0</span>회</div></div>
+        </div>
+
+        <div class="warning" id="warn"></div>
+        <div class="office" id="off"></div>
+
+        <div class="weapon-popup" id="wpop">
+            <div style="background:#374151; padding:30px; border-radius:12px;">
+                <h2 style="text-align:center; margin-bottom:15px;">🎯 <span id="tname"></span> 공격!</h2>
+                <div class="weapon-grid" id="wgrid"></div>
+                <button onclick="closePop()" style="width:100%; margin-top:15px; padding:10px; background:#4b5563; border:none; border-radius:6px; color:white; cursor:pointer;">취소</button>
+            </div>
+        </div>
+
+        <div class="shop"><h3>🛒 무기</h3><div class="shop-grid" id="shop"></div></div>
+        <div class="stats">
+            <h3>📊 통계</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:10px;">
+                <div style="background:#374151; padding:10px; border-radius:8px;"><div style="color:#fbbf24; font-weight:bold;">플레이어</div><div id="ps"></div></div>
+                <div style="background:#374151; padding:10px; border-radius:8px;"><div style="color:#fbbf24; font-weight:bold;">상사 피격</div><div id="bs"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const G = {
+            me: null, sc: 0, co: 0, hi: 0, tar: null,
+            psc: {상빈:0, 나:0, 현아:0, 준형:0},
+            bhi: {ㄱㅈ:0, ㅈㄹ:0, 훈발놈:0, 쯔허:0, 박24:0},
+            pos: {ㄱㅈ:{x:30,y:20}, 상빈:{x:45,y:20}, 나:{x:60,y:20}, 현아:{x:75,y:50}, 준형:{x:60,y:70}, 훈발놈:{x:50,y:90}, 쯔허:{x:85,y:90}},
+            st: {ㄱㅈ:{burp:0,talk:0,sneak:0}, ㅈㄹ:{out:0,ram:0}, 쯔허:{}, 훈발놈:{}, 박24:{out:0,poop:0}},
+            wp: [{n:'주먹',d:10,i:'👊',c:0},{n:'키보드',d:20,i:'⌨️',c:50},{n:'마우스',d:30,i:'🖱️',c:100},{n:'커피',d:50,i:'☕',c:200},{n:'노트북',d:80,i:'💻',c:400},{n:'의자',d:120,i:'🪑',c:800}],
+            own: [1,0,0,0,0,0]
+        };
+
+        function mkPerson(boss, n, type) {
+            let hc = boss ? 'boss' : 'player', bc = 'body ' + hc, lc = 'leg ' + hc, hair = '';
+            if (type === 'ㄱㅈ' || type === '훈발놈') { bc += ' fat'; hair = '<div class="hair">🎩</div>'; }
+            else if (type === 'ㅈㄹ' || type === '쯔허') { hc += ' bald'; }
+            if (type === '쯔허') { bc += ' tall'; lc += ' tall'; }
+            return `<div class="head ${hc}">${hair}<div class="eyes">👀</div></div><div class="${bc}"><div class="arm left"></div><div class="arm right"></div></div><div class="legs"><div class="${lc}"></div><div class="${lc}"></div></div><div class="label ${boss?'boss-label':'player-label'}">${n}</div>`;
+        }
+
+        function start(c) {
+            G.me = c;
+            document.getElementById('charSelect').style.display = 'none';
+            init();
+        }
+
+        function init() {
+            const o = document.getElementById('off');
+            o.innerHTML = '';
+            
+            // 문들
+            const d1 = document.createElement('div');
+            d1.className = 'door'; d1.style.left = '2%'; d1.style.top = '50%'; d1.textContent = '🚪'; d1.id = 'd1';
+            o.appendChild(d1);
+            
+            const d2 = document.createElement('div');
+            d2.className = 'door'; d2.style.left = '5%'; d2.style.top = '30%'; d2.textContent = '🚪'; d2.id = 'd2';
+            o.appendChild(d2);
+            
+            // 책상
+            Object.entries(G.pos).forEach(([n,p]) => {
+                const dk = document.createElement('div');
+                dk.className = 'desk'; dk.style.left = p.x + '%'; dk.style.top = p.y + '%';
+                o.appendChild(dk);
+            });
+            
+            // 캐릭터
+            Object.entries(G.pos).forEach(([n,p]) => {
+                const pr = document.createElement('div');
+                pr.className = 'person'; pr.id = 'p-' + n;
+                pr.style.left = p.x + '%'; pr.style.top = p.y + '%';
+                pr.innerHTML = mkPerson(['ㄱㅈ','훈발놈','쯔허'].includes(n), n, n);
+                if (['ㄱㅈ','훈발놈','쯔허'].includes(n)) pr.onclick = () => showW(n);
+                o.appendChild(pr);
+            });
+            
+            upd(); drawShop();
+        }
+
+        function tick() {
+            // ㄱㅈ 말걸기
+            if (!G.st.ㄱㅈ.talk && !G.st.ㄱㅈ.sneak && Math.random() < 0.008) {
+                G.st.ㄱㅈ.talk = 1;
+                const s = document.createElement('div');
+                s.className = 'speech'; s.style.left = '35%'; s.style.top = '15%';
+                s.textContent = ['야 상빈아~','상빈이 뭐해?','어제 뭐했어?'][Math.floor(Math.random()*3)];
+                s.id = 'sp1';
+                document.getElementById('off').appendChild(s);
+                setTimeout(() => { const x = document.getElementById('sp1'); if(x) x.remove(); G.st.ㄱㅈ.talk = 0; }, 3000);
+            }
+            
+            // ㄱㅈ 뒤로 훔쳐보기
+            if (!G.st.ㄱㅈ.sneak && !G.st.ㄱㅈ.talk && (G.me === '나' || G.me === '상빈') && Math.random() < 0.01) {
+                G.st.ㄱㅈ.sneak = 1;
+                const e = document.getElementById('p-ㄱㅈ');
+                const tp = G.pos[G.me];
+                document.getElementById('warn').textContent = '⚠️ ㄱㅈ이 뒤에서 훔쳐보고 있어요!';
+                document.getElementById('warn').style.display = 'block';
+                
+                const iv = setInterval(() => {
+                    const cx = parseFloat(e.style.left), cy = parseFloat(e.style.top);
+                    const dx = (tp.x+5) - cx, dy = (tp.y+10) - cy;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 2) {
+                        clearInterval(iv);
+                        setTimeout(() => {
+                            e.style.left = '30%'; e.style.top = '20%';
+                            G.st.ㄱㅈ.sneak = 0;
+                            document.getElementById('warn').style.display = 'none';
+                        }, 2000);
+                    } else {
+                        e.style.left = (cx + dx/d * 0.3) + '%';
+                        e.style.top = (cy + dy/d * 0.3) + '%';
+                    }
+                }, 100);
+            }
+            
+            // ㄱㅈ 트름 (상빈이가 입 때림)
+            if (G.me === '상빈' && !G.st.ㄱㅈ.burp && Math.random() < 0.01) {
+                G.st.ㄱㅈ.burp = 1;
+                const e = document.getElementById('p-ㄱㅈ');
+                const b = document.createElement('div');
+                b.className = 'burp'; b.textContent = '💨'; b.id = 'brp';
+                e.appendChild(b);
+                e.onclick = () => {
+                    if (G.st.ㄱㅈ.burp) {
+                        attack(0, 'ㄱㅈ');
+                        G.psc.상빈 += 50;
+                        const h = document.createElement('div');
+                        h.className = 'hit'; h.textContent = '👋💥입싸대기!';
+                        h.style.left = '30%'; h.style.top = '20%';
+                        document.getElementById('off').appendChild(h);
+                        setTimeout(() => h.remove(), 700);
+                    }
+                };
+                setTimeout(() => {
+                    const x = document.getElementById('brp'); if(x) x.remove();
+                    G.st.ㄱㅈ.burp = 0;
+                    e.onclick = () => showW('ㄱㅈ');
+                }, 3000);
+            }
+            
+            // ㅈㄹ 방에서 나오기
+            if (!G.st.ㅈㄹ.out && Math.random() < 0.01) {
+                G.st.ㅈㄹ.out = 1;
+                G.st.ㅈㄹ.ram = Math.random() < 0.5 ? 1 : 0;
+                const pr = document.createElement('div');
+                pr.className = 'person'; pr.id = 'p-ㅈㄹ';
+                pr.style.left = '15%'; pr.style.top = '30%';
+                pr.innerHTML = mkPerson(1, 'ㅈㄹ', 'ㅈㄹ');
+                if (G.st.ㅈㄹ.ram) {
+                    const r = document.createElement('div');
+                    r.className = 'ramen'; r.textContent = '🍜'; r.id = 'ram';
+                    pr.appendChild(r);
+                }
+                pr.onclick = () => {
+                    if (G.st.ㅈㄹ.ram) {
+                        G.st.ㅈㄹ.ram = 0;
+                        G.psc[G.me] += 30; G.co += 30; upd();
+                        const x = document.getElementById('ram'); if(x) x.remove();
+                        const h = document.createElement('div');
+                        h.className = 'hit'; h.textContent = '🍜💥';
+                        h.style.left = pr.style.left; h.style.top = pr.style.top;
+                        document.getElementById('off').appendChild(h);
+                        setTimeout(() => h.remove(), 700);
+                    } else { showW('ㅈㄹ'); }
+                };
+                document.getElementById('off').appendChild(pr);
+                
+                setInterval(() => {
+                    if (G.st.ㅈㄹ.out && Math.random() < 0.1) {
+                        const p = document.getElementById('p-ㅈㄹ');
+                        if(p) { p.style.left = (Math.random()*70+15)+'%'; p.style.top = (Math.random()*50+25)+'%'; }
+                    }
+                }, 2000);
+            }
+            
+            // 쯔허
+            const z = document.getElementById('p-쯔허');
+            if (z && Math.random() < 0.015) {
+                const tg = ['상빈','현아','준형'][Math.floor(Math.random()*3)];
+                const tp = G.pos[tg];
+                z.style.left = (tp.x+5) + '%'; z.style.top = (tp.y+10) + '%';
+                const s = document.createElement('div');
+                s.className = 'speech'; s.style.left = z.style.left; s.style.top = (parseFloat(z.style.top)-8)+'%';
+                s.textContent = (tg==='상빈'||tg==='현아') ? '화이팅! 💪' : '잘되가? 😏';
+                document.getElementById('off').appendChild(s);
+                setTimeout(() => s.remove(), 3000);
+            }
+            
+            // 박24 등장
+            if (!G.st.박24.out && Math.random() < 0.003) {
+                G.st.박24.out = 1;
+                const pr = document.createElement('div');
+                pr.className = 'person'; pr.id = 'p-박24';
+                pr.style.left = '8%'; pr.style.top = '50%';
+                pr.innerHTML = mkPerson(1, '박24💩', null);
+                pr.onclick = () => gangbeat();
+                document.getElementById('off').appendChild(pr);
+                
+                setTimeout(() => {
+                    G.st.박24.poop = 1;
+                    const p = document.createElement('div');
+                    p.className = 'poop-floor'; p.textContent = '💩💩💩';
+                    p.style.left = '30%'; p.style.top = '60%';
+                    document.getElementById('off').appendChild(p);
+                }, 1000);
+                
+                setTimeout(() => {
+                    const x = document.getElementById('p-박24');
+                    if(x) x.remove();
+                    G.st.박24.out = 0; G.st.박24.poop = 0;
+                }, 10000);
+            }
+        }
+
+        function gangbeat() {
+            const all = ['상빈','나','현아','준형'];
+            all.forEach((n,i) => {
+                setTimeout(() => {
+                    const p = document.getElementById('p-'+n);
+                    if(p) {
+                        p.style.left = '8%';
+                        p.style.top = '50%';
+                        setTimeout(() => {
+                            p.style.left = G.pos[n].x + '%';
+                            p.style.top = G.pos[n].y + '%';
+                        }, 1000);
+                    }
+                }, i*200);
+            });
+            
+            setTimeout(() => {
+                attack(0, '박24');
+                const h = document.createElement('div');
+                h.className = 'hit'; h.textContent = '👊👊👊다굴!';
+                h.style.left = '8%'; h.style.top = '50%';
+                document.getElementById('off').appendChild(h);
+                setTimeout(() => h.remove(), 700);
+                
+                const x = document.getElementById('p-박24');
+                if(x) x.remove();
+                G.st.박24.out = 0;
+            }, 1500);
+        }
+
+        function showW(n) {
+            G.tar = n;
+            document.getElementById('tname').textContent = n;
+            const gr = document.getElementById('wgrid');
+            gr.innerHTML = '';
+            G.wp.forEach((w,i) => {
+                if (G.own[i]) {
+                    const b = document.createElement('button');
+                    b.className = 'weapon-btn';
+                    b.innerHTML = `<div style="font-size:30px;">${w.i}</div><div>${w.n}</div><div style="color:#fbbf24;">💥${w.d}</div>`;
+                    b.onclick = () => attack(i);
+                    gr.appendChild(b);
+                }
+            });
+            document.getElementById('wpop').style.display = 'flex';
+        }
+
+        function closePop() { document.getElementById('wpop').style.display = 'none'; }
+
+        function attack(i, boss) {
+            const w = G.wp[i], b = boss || G.tar;
+            G.sc += w.d; G.co += w.d; G.hi++;
+            G.psc[G.me] += w.d; G.bhi[b]++;
+            upd(); drawShop();
+            
+            const e = document.getElementById('p-' + b);
+            if (e) {
+                e.classList.add('knocked');
+                const h = document.createElement('div');
+                h.className = 'hit'; h.textContent = w.i + '💥';
+                h.style.left = e.style.left; h.style.top = e.style.top;
+                document.getElementById('off').appendChild(h);
+                setTimeout(() => h.remove(), 700);
+                setTimeout(() => e.classList.remove('knocked'), 600);
+            }
+            closePop();
+        }
+
+        function buy(i) {
+            const w = G.wp[i];
+            if (G.co >= w.c && !G.own[i]) {
+                G.co -= w.c; G.own[i] = 1;
+                upd(); drawShop();
+            }
+        }
+
+        function upd() {
+            document.getElementById('score').textContent = G.sc;
+            document.getElementById('coins').textContent = G.co;
+            document.getElementById('hits').textContent = G.hi;
+            document.getElementById('ps').innerHTML = Object.entries(G.psc).sort((a,b)=>b[1]-a[1]).map(([n,s])=>`<div style="font-size:12px;">${n}: ${s}</div>`).join('');
+            document.getElementById('bs').innerHTML = Object.entries(G.bhi).sort((a,b)=>b[1]-a[1]).map(([n,h])=>`<div style="font-size:12px;">${n}: ${h}회</div>`).join('');
+        }
+
+        function drawShop() {
+            const gr = document.getElementById('shop');
+            gr.innerHTML = '';
+            G.wp.forEach((w,i) => {
+                const d = document.createElement('div');
+                d.className = 'shop-item';
+                d.innerHTML = `<div style="font-size:22px;">${w.i}</div><div>${w.n}</div><div style="color:#fbbf24; font-size:10px;">💥${w.d}</div>`;
+                if (!G.own[i]) {
+                    const b = document.createElement('button');
+                    b.className = 'buy-btn';
+                    b.textContent = '💰'+w.c;
+                    b.disabled = G.co < w.c;
+                    b.style.background = G.co >= w.c ? '#10b981' : '#4b5563';
+                    b.style.color = 'white';
+                    b.onclick = () => buy(i);
+                    d.appendChild(b);
+                } else {
+                    d.innerHTML += '<div style="color:#10b981; margin-top:6px; font-size:10px;">✅</div>';
+                }
+                gr.appendChild(d);
+            });
+        }
+
+        setInterval(tick, 100);
+    </script>
+</body>
+</html>
