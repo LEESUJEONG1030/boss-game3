@@ -206,27 +206,43 @@
                 }, 100);
             }
             
-            // ㄱㅈ 트름 (상빈이가 입 때림)
+            // ㄱㅈ 트름 (상빈이만 입 때림)
             if (G.me === '상빈' && !G.st.ㄱㅈ.burp && Math.random() < 0.01) {
                 G.st.ㄱㅈ.burp = 1;
                 const e = document.getElementById('p-ㄱㅈ');
                 const b = document.createElement('div');
                 b.className = 'burp'; b.textContent = '💨'; b.id = 'brp';
                 e.appendChild(b);
-                e.onclick = () => {
-                    if (G.st.ㄱㅈ.burp) {
-                        attack(0, 'ㄱㅈ');
-                        G.psc.상빈 += 50;
-                        const h = document.createElement('div');
-                        h.className = 'hit'; h.textContent = '👋💥입싸대기!';
-                        h.style.left = '30%'; h.style.top = '20%';
-                        document.getElementById('off').appendChild(h);
-                        setTimeout(() => h.remove(), 700);
-                    }
-                };
+                
+                // 상빈이만 클릭 가능
+                const sb = document.getElementById('p-상빈');
+                if (sb) {
+                    sb.style.cursor = 'pointer';
+                    sb.style.transform = 'scale(1.1)';
+                    sb.onclick = () => {
+                        if (G.st.ㄱㅈ.burp) {
+                            attack(0, 'ㄱㅈ');
+                            G.psc.상빈 += 50;
+                            const h = document.createElement('div');
+                            h.className = 'hit'; h.textContent = '👋💥입싸대기!';
+                            h.style.left = '30%'; h.style.top = '20%';
+                            document.getElementById('off').appendChild(h);
+                            setTimeout(() => h.remove(), 700);
+                            sb.style.cursor = 'default';
+                            sb.style.transform = 'scale(1)';
+                            sb.onclick = null;
+                        }
+                    };
+                }
+                
                 setTimeout(() => {
                     const x = document.getElementById('brp'); if(x) x.remove();
                     G.st.ㄱㅈ.burp = 0;
+                    if (sb) {
+                        sb.style.cursor = 'default';
+                        sb.style.transform = 'scale(1)';
+                        sb.onclick = null;
+                    }
                     e.onclick = () => showW('ㄱㅈ');
                 }, 3000);
             }
@@ -246,14 +262,38 @@
                 }
                 pr.onclick = () => {
                     if (G.st.ㅈㄹ.ram) {
+                        // 라면 떨어뜨리기 + 엎어짐 + 울음
                         G.st.ㅈㄹ.ram = 0;
                         G.psc[G.me] += 30; G.co += 30; upd();
+                        
+                        // 라면 제거
                         const x = document.getElementById('ram'); if(x) x.remove();
+                        
+                        // 엎어지는 애니메이션
+                        pr.style.transform = 'rotate(90deg) translateY(15px)';
+                        
+                        // 울음
+                        const cry = document.createElement('div');
+                        cry.className = 'speech';
+                        cry.style.left = pr.style.left;
+                        cry.style.top = (parseFloat(pr.style.top) - 8) + '%';
+                        cry.textContent = '😭 으아아앙!';
+                        cry.id = 'cry';
+                        document.getElementById('off').appendChild(cry);
+                        
+                        // 타격 이펙트
                         const h = document.createElement('div');
                         h.className = 'hit'; h.textContent = '🍜💥';
                         h.style.left = pr.style.left; h.style.top = pr.style.top;
                         document.getElementById('off').appendChild(h);
                         setTimeout(() => h.remove(), 700);
+                        
+                        // 1.5초 후 일어남
+                        setTimeout(() => {
+                            pr.style.transform = '';
+                            const c = document.getElementById('cry');
+                            if (c) c.remove();
+                        }, 1500);
                     } else { 
                         showW('ㅈㄹ'); 
                     }
